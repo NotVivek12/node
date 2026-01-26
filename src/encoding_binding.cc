@@ -17,6 +17,7 @@ namespace encoding_binding {
 using v8::ArrayBuffer;
 using v8::BackingStore;
 using v8::BackingStoreInitializationMode;
+using v8::BackingStoreOnFailureMode;
 using v8::Context;
 using v8::FunctionCallbackInfo;
 using v8::HandleScope;
@@ -317,9 +318,15 @@ void BindingData::EncodeUtf8String(const FunctionCallbackInfo<Value>& args) {
   Local<ArrayBuffer> ab;
   {
     std::unique_ptr<BackingStore> bs = ArrayBuffer::NewBackingStore(
-        isolate, length, BackingStoreInitializationMode::kUninitialized);
+        isolate,
+        length,
+        BackingStoreInitializationMode::kUninitialized,
+        BackingStoreOnFailureMode::kReturnNull);
 
-    CHECK(bs);
+    if (!bs) [[unlikely]] {
+      THROW_ERR_MEMORY_ALLOCATION_FAILED(isolate);
+      return;
+    }
 
     // We are certain that `data` is sufficiently large
     str->WriteUtf8V2(isolate,
@@ -379,6 +386,8 @@ void BindingData::DecodeUTF8(const FunctionCallbackInfo<Value>& args) {
       return node::THROW_ERR_ENCODING_INVALID_ENCODED_DATA(
           env->isolate(), "The encoded data was not valid for encoding utf-8");
     }
+
+    // TODO(chalker): save on utf8 validity recheck in StringBytes::Encode()
   }
 
   if (length == 0) return args.GetReturnValue().SetEmptyString();
