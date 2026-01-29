@@ -993,17 +993,18 @@ void ChannelWrap::EnsureServers() {
     return;
   }
 
-  /* Check if the only server is a loopback address (IPv4 127.0.0.1 or IPv6 ::1).
-   * Newer c-ares versions may set tcp_port/udp_port to 53 instead of 0,
+  /* Check if the only server is a loopback address (IPv4 127.0.0.1 or IPv6
+   * ::1). Newer c-ares versions may set tcp_port/udp_port to 53 instead of 0,
    * so we no longer check port values. */
   bool is_loopback = false;
   if (servers[0].family == AF_INET) {
     is_loopback = (servers[0].addr.addr4.s_addr == htonl(INADDR_LOOPBACK));
   } else if (servers[0].family == AF_INET6) {
-    static const unsigned char kIPv6Loopback[16] =
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    static const unsigned char kIPv6Loopback[16] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
     is_loopback =
-        (memcmp(&servers[0].addr.addr6, kIPv6Loopback, sizeof(kIPv6Loopback)) == 0);
+        (memcmp(&servers[0].addr.addr6, kIPv6Loopback, sizeof(kIPv6Loopback)) ==
+         0);
   }
 
   if (!is_loopback) {

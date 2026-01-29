@@ -59,11 +59,7 @@ const dgram = require('dgram');
       assert.strictEqual(result[0].weight, 1);
     } catch (err) {
       // This is the regression: should NOT get ECONNREFUSED
-      assert.notStrictEqual(
-        err.code,
-        'ECONNREFUSED',
-        'SRV query should not fail with ECONNREFUSED when server is reachable'
-      );
+      assert.notStrictEqual(err.code, 'ECONNREFUSED');
       throw err;
     } finally {
       server.close();

@@ -65,7 +65,7 @@ server.bind(0, common.mustCall(async () => {
 
   function validateResult(result) {
     assert.ok(Array.isArray(result), 'Result should be an array');
-    assert.strictEqual(result.length, 3, 'Should have 3 SRV records');
+    assert.strictEqual(result.length, 3);
 
     for (const record of result) {
       assert.strictEqual(typeof record, 'object');
